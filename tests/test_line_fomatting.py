@@ -2,7 +2,8 @@ import pytest
 from ionex_formatter.formatter import (
     IonexFile,
     NumericTokenTooBig,
-    UnknownFormatSpecifier
+    UnknownFormatSpecifier,
+    UnknownFormatingError
 )
 
 class TestLineFormating():
@@ -17,6 +18,24 @@ class TestLineFormating():
         formatted_line = formatter.format_header_line(data, format_spec)
         expected = "  1    2.000   3           "
         assert formatted_line == expected
+
+    def test_format_line_UnknownFormatSpecifier(self, formatter):
+        data = [1, 2, '3']
+        format_spec = "X3, 2X, F7.3, 3X, A2, 1A"
+        with pytest.raises(UnknownFormatSpecifier):
+            formatter.format_header_line(data, format_spec)
+
+    def test_verify_formatted_UnknownFormatSpecifier(self, formatter):
+        data = [1, 2, '3']
+        with pytest.raises(UnknownFormatSpecifier):
+            formatter._verify_formatted(data[0],"C","c",1,1)
+
+    def test_verify_formatted_UnknownFormatingError(self, formatter):
+        data = [1, 2, '3']
+        with pytest.raises(UnknownFormatingError):
+            formatter._verify_formatted(data[0],"I","2",1,1)
+
+
 
     def test_format_line_basic_str(self, formatter):
         data = ['1', '2.0', '3']

@@ -88,6 +88,13 @@ class TestIonexHeaderBuild():
             "s:                  COMMENT             "
         ]
         assert formatter.header["COMMENT"] == expected
+    
+    def test_comment_isinstance(self):
+        formatter = IonexFile()
+        formatter.add_comment("COMMENT")
+        expected  = ['COMMENT                                                     COMMENT             ']
+        assert formatter.header["COMMENT"] == expected
+
 
     def test_description(self):
         formatter = IonexFile()

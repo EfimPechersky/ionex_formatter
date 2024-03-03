@@ -1,7 +1,8 @@
 import pytest
 from ionex_formatter import formatter
 from ionex_formatter.spatial import SpatialRange
-
+from ionex_formatter.formatter import HeaderDuplicatedLine
+from ionex_formatter.formatter import NumericTokenTooBig
 class TestSpatialGridDimensions():
     
     @pytest.fixture
@@ -23,10 +24,26 @@ class TestSpatialGridDimensions():
         lon_lines = file_formatter.header["LON1 / LON2 / DLON"] 
         assert len(lon_lines) == 1
         assert lon_lines[0] == "  -180.0 180.0   5.0                    " \
-                               "                    LON1 / LON2 / DLON  "
+                               "                    LON1 / LON2 / DLON  "    
 
     def test_height_grid(self, file_formatter):
         heigth_lines = file_formatter.header["HGT1 / HGT2 / DHGT"] 
         assert len(heigth_lines) == 1
         assert heigth_lines[0] == "   450.0 450.0   0.0                    " \
                                   "                    HGT1 / HGT2 / DHGT  "
+
+    def test_duplicated_lines(self, file_formatter):
+        lat_grid = SpatialRange(87.5, -87.5, -2.5)
+        lon_grid = SpatialRange(-180, 180, 5)
+        height_grid = SpatialRange(450, 450, 0)
+        with pytest.raises(HeaderDuplicatedLine):
+            file_formatter.set_spatial_grid(lat_grid, lon_grid, height_grid)
+
+    def test_add_zeros(self, file_formatter):
+        out = file_formatter._get_header_numeric_token(1,4,0)
+        assert out == "1.00"
+    
+    def test_with_zeros(self, file_formatter):
+          with pytest.raises(NumericTokenTooBig):
+              file_formatter._get_header_numeric_token(1,1,0)
+	
